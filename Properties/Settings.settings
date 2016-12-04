@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Find.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="DatapartCreationCall" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.AddDataPart</Value>
+    </Setting>
+    <Setting Name="DatapartUsageCall" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.GetDataPart</Value>
+    </Setting>
+    <Setting Name="DefaultPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Div\BizTalk\GALO_en_ESB</Value>
+    </Setting>
+    <Setting Name="DefaultExtension" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">odx</Value>
+    </Setting>
+    <Setting Name="DefaultCriteria_Test" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Aanvraag_Pdf</Value>
+    </Setting>
+    <Setting Name="PropertyCreationCall" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.SetProperty</Value>
+    </Setting>
+    <Setting Name="PropertyUsageCall" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.GetProperty</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
