@@ -23,15 +23,26 @@ namespace Find
         public static List<string> SearchDatapartActivity(List<string> list, string criteria, bool searchUsage)
         {
             string addStatement = Properties.Settings.Default.DatapartCreationCall.ToLower().Replace(" ", string.Empty);
-            string useStatement = Properties.Settings.Default.DatapartUsageCall.ToLower().Replace(" ", string.Empty);
-
-            // creation of usage zoeken
-            string datapartCall = searchUsage ? useStatement : addStatement;
+            string useStatement_GET = Properties.Settings.Default.DatapartUsageCall_Get.ToLower().Replace(" ", string.Empty);
+            string useStatement_CHECK = Properties.Settings.Default.DatapartUsageCall_Check.ToLower().Replace(" ", string.Empty);
 
             List<string> preMatches = FileHelper.FindFilesWithCriteria(list, criteria);
 
+            List<string> specificMatch = new List<string>();
+
             //bij usage een subselectie op prematches. Bij creation selecteren op de volledige lijst.
-            List<string> specificMatch = searchUsage ? FileHelper.FindFilesWithCriteria(preMatches, datapartCall) : FileHelper.FindFilesWithCriteria(list, datapartCall);
+            if (searchUsage)
+            {
+                List<string> specificMatchGet = FileHelper.FindFilesWithCriteria(preMatches, useStatement_GET);
+                List<string> specificMatchCheck = FileHelper.FindFilesWithCriteria(preMatches, useStatement_CHECK);
+                specificMatch = specificMatchGet.Concat(specificMatchCheck).ToList();
+            }
+            else
+            {
+                specificMatch = FileHelper.FindFilesWithCriteria(list, addStatement);
+            }
+
+
             List<string> callableServicesWithAddDatapart = searchUsage ? new List<string>() : FileHelper.FindFilesWithCriteria(list, addStatement);
             List<Tuple<string, string>> callableServiceNames = ExtractServiceNames(callableServicesWithAddDatapart);
             List<string> result = new List<string>();
@@ -39,7 +50,16 @@ namespace Find
             string progress = searchUsage ? "\n> Filtering users" : "\n> Filtering creators";
             Console.Write(progress);
 
-            AnalyzeLine(criteria, datapartCall, specificMatch, callableServiceNames, result);
+            if(searchUsage)
+            {
+                AnalyzeLine(criteria, useStatement_CHECK, specificMatch, callableServiceNames, result);
+                AnalyzeLine(criteria, useStatement_GET, specificMatch, callableServiceNames, result);
+            }
+            else
+            {
+                AnalyzeLine(criteria, addStatement, specificMatch, callableServiceNames, result);
+            }
+            
 
             Console.Write("> Done");
             return result;

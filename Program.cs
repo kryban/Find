@@ -70,9 +70,6 @@ namespace Find
                 Console.Write("Continue (y/n): ");
                 goOn= Console.ReadLine().ToString();
             }
-
-
-
         }
     }
 }

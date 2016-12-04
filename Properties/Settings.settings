@@ -5,7 +5,7 @@
     <Setting Name="DatapartCreationCall" Type="System.String" Scope="Application">
       <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.AddDataPart</Value>
     </Setting>
-    <Setting Name="DatapartUsageCall" Type="System.String" Scope="Application">
+    <Setting Name="DatapartUsageCall_Get" Type="System.String" Scope="Application">
       <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.GetDataPart</Value>
     </Setting>
     <Setting Name="DefaultPath" Type="System.String" Scope="Application">
@@ -22,6 +22,9 @@
     </Setting>
     <Setting Name="PropertyUsageCall" Type="System.String" Scope="Application">
       <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.GetProperty</Value>
+    </Setting>
+    <Setting Name="DatapartUsageCall_Check" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.CheckDataPart</Value>
     </Setting>
   </Settings>
 </SettingsFile>

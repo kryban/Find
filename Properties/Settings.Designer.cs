@@ -35,9 +35,9 @@ namespace Find.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("call Wigo4it.BizTalk.Bus.Core.GetDataPart")]
-        public string DatapartUsageCall {
+        public string DatapartUsageCall_Get {
             get {
-                return ((string)(this["DatapartUsageCall"]));
+                return ((string)(this["DatapartUsageCall_Get"]));
             }
         }
         
@@ -83,6 +83,15 @@ namespace Find.Properties {
         public string PropertyUsageCall {
             get {
                 return ((string)(this["PropertyUsageCall"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("call Wigo4it.BizTalk.Bus.Core.CheckDataPart")]
+        public string DatapartUsageCall_Check {
+            get {
+                return ((string)(this["DatapartUsageCall_Check"]));
             }
         }
     }
