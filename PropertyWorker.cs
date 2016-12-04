@@ -54,7 +54,7 @@ namespace Find
                                     .Replace(" ", string.Empty).ToLower();
 
                 // elk bestand in voorlopige matches nalopen op werkelijke create van datapart
-                //foreach (var line in File.ReadLines(path))
+                // foreach (var line in File.ReadLines(path))
                 foreach (var line in onlyCode.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
                 {
                     var foo = 0;
