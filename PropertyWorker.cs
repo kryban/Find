@@ -53,13 +53,11 @@ namespace Find
                                     .Substring(fileOriginal.IndexOf("#endif // __DESIGNER_DATA") + 1)
                                     .Replace(" ", string.Empty).ToLower();
 
-                // elk bestand in voorlopige matches nalopen op werkelijke create van datapart
-                // foreach (var line in File.ReadLines(path))
+                // elk bestand in voorlopige matches nalopen op werkelijke create o aanroep van property
                 foreach (var line in onlyCode.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
                 {
-                    var foo = 0;
 
-                    // eerst line vinden waarin datapartName gedeclareerd wordt
+                    // eerst line vinden waarin propertyName gedeclareerd wordt
                     if (line.Contains(criteria.ToLower()) && line.Contains("propertyname="))
                     {
                         lineNumber_WantedPropertyName = lineNumber;
@@ -71,20 +69,23 @@ namespace Find
                         lineNumber_NotRelatedPropertyName = lineNumber;
                     }
 
-                    // dan line vinden waarin datapart aanmaak call plaatsvindt, maar pas nadat de relevante datapartname gedeclareerd is
+                    // dan line vinden waarin property aanmaak/aanroep call plaatsvindt, 
+                    // maar pas nadat de relevante propertyname gedeclareerd is
                     if (line.ToLower().Contains(propertyCall) && lineNumber_WantedPropertyName > 0)
                     {
                         lineNumber_PropertyCall = lineNumber;
 
                         // als we deze vinden, dan stoppen we met lines zoeken, 
-                        // want dan hebben we een declaratie en een AddDatapart call
+                        // want dan hebben we een declaratie en een get/setproperty call
+                        // een eventuele tweede aanroep is niet interessant voor bepalen van een match
                         break;
                     }
                     
                     lineNumber++;
                 }
 
-                // als beoogde datapartname gebruikt wordt in de AddDatapartCall (al dan niet indirect), dan toevoegen
+                // als volgens op de propertyName declaratie een Get of Set propertyCall komt, dan is het van die dataName
+                // waardoor we het als een match kunnen zien
                 if (lineNumber_WantedPropertyName > lineNumber_NotRelatedPropertyName
                      && lineNumber_WantedPropertyName < lineNumber_PropertyCall)
                 {
