@@ -84,8 +84,8 @@ namespace Find
                     lineNumber++;
                 }
 
-                // als volgens op de propertyName declaratie een Get of Set propertyCall komt, dan is het van die dataName
-                // waardoor we het als een match kunnen zien
+                // als volgens op de propertyName declaratie een Get of Set propertyCall komt,
+                // dan is het van die propertyName waardoor we het als een match kunnen zien
                 if (lineNumber_WantedPropertyName > lineNumber_NotRelatedPropertyName
                      && lineNumber_WantedPropertyName < lineNumber_PropertyCall)
                 {
