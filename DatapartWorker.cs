@@ -62,7 +62,11 @@ namespace Find
             
 
             Console.Write("> Done");
-            return result;
+
+
+            // TODO: eventuele duplicates worden veroorzaakt door CheckDatapart en GetDatapart calls
+            // TODO: uitfilteren voldoet, maar netter is om Check en Get netjes te verwerken
+            return result.Distinct().ToList();
         }
 
         private static void AnalyzeLine(string criteria, string datapartCall, List<string> specificMatch, List<Tuple<string, string>> callableServiceNames, List<string> result)
