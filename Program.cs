@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Find
 {
@@ -11,13 +13,13 @@ namespace Find
 
             while (goOn.Equals("y"))
             {
-                Console.Write("Path (optional): ");
+                Console.Write("Path (optional) (default "+ Properties.Settings.Default.DefaultPath +"): ");
                 string startPath = Console.ReadLine();
                 startPath = startPath.Length > 0 ? startPath : Properties.Settings.Default.DefaultPath;
 
                 Console.Write("Search for datapart(d) or property (p): ");
-                string searchFor = Console.ReadLine().ToLower() ;
-                if(searchFor != "d" && searchFor != "p")
+                string searchFor = Console.ReadLine().ToLower();
+                if (searchFor != "d" && searchFor != "p")
                 {
                     Console.WriteLine(searchFor + " not recognized.");
                     continue;
@@ -35,41 +37,54 @@ namespace Find
                 List<string> fileList = new List<string>();
                 fileList = FileHelper.CollectFiles(startPath, extension);
 
-                List<string> resulSetCreation = new List<string>();
-                List<string> resulSetUsage = new List<string>();
+                List<string> resultSetCreation = new List<string>();
+                List<string> resultSetUsage = new List<string>();
 
+                //TODO: de gevallen worden niet gevonden indien property of datapartname gedeclareerd en daarna in een if de datapartname overschreven wordt
                 if (searchFor.Equals("d"))
                 {
-                    
-                    resulSetCreation = DatapartWorker.SearchDatapartCreation(fileList, criteria);                  
-                    resulSetUsage = DatapartWorker.SearchDatapartUsage(fileList, criteria);
+
+                    resultSetCreation = DatapartWorker.SearchDatapartCreation(fileList, criteria);
+                    resultSetUsage = DatapartWorker.SearchDatapartUsage(fileList, criteria);
                 }
                 else
                 {
-                    resulSetCreation = PropertyWorker.SearchPropertyCreation(fileList, criteria);
-                    resulSetUsage = PropertyWorker.SearchPropertyUsage(fileList, criteria);
+                    resultSetCreation = PropertyWorker.SearchPropertyCreation(fileList, criteria);
+                    resultSetUsage = PropertyWorker.SearchPropertyUsage(fileList, criteria);
                 }
 
                 Console.WriteLine("\n\nRESULT");
 
-                Console.WriteLine("\nCreation:");
+                Console.WriteLine("\nCreation of \"" + criteria + " :");
 
-                foreach (string path in resulSetCreation)
+                foreach (string path in resultSetCreation)
                 {
-                    Console.WriteLine(path);
+                    string subPath = path.Replace(startPath, "");
+                    Console.WriteLine(subPath);
                 }
 
-                Console.WriteLine("\nUsage:");
-                foreach (string path in resulSetUsage)
+                Console.WriteLine("\nUsage of \"" + criteria + " :");
+                foreach (string path in resultSetUsage)
                 {
-                    Console.WriteLine(path);
+                    string subPath = path.Replace(startPath, "");
+                    Console.WriteLine(subPath);
                 }
 
                 Console.WriteLine("\nDone.");
 
+                Console.Write("Export results (y/n)"  );
+                string exportResults = Console.ReadLine().ToLower();
+                
+                if (exportResults.Equals("y"))
+                {
+                    FileHelper.ExportResults(criteria, resultSetCreation, resultSetUsage);
+                }
+
                 Console.Write("Continue (y/n): ");
-                goOn= Console.ReadLine().ToString();
+                goOn = Console.ReadLine().ToString();
             }
         }
+
+        public static List<string> resultSetCreation { get; set; }
     }
 }
