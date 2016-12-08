@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +22,7 @@ namespace Find
 
         public static List<string> SearchDatapartActivity(List<string> list, string criteria, bool searchUsage)
         {
+            Console.Write("\n> Analyzing files ");
             string addStatement = Properties.Settings.Default.DatapartCreationCall.ToLower().Replace(" ", string.Empty);
             string useStatement_GET = Properties.Settings.Default.DatapartUsageCall_Get.ToLower().Replace(" ", string.Empty);
             string useStatement_CHECK = Properties.Settings.Default.DatapartUsageCall_Check.ToLower().Replace(" ", string.Empty);
@@ -40,14 +41,16 @@ namespace Find
             else
             {
                 specificMatch = FileHelper.FindFilesWithCriteria(list, addStatement);
+                specificMatch = preMatches.Concat(specificMatch).ToList();
             }
 
-
+            Console.Write("> Done");
             List<string> callableServicesWithAddDatapart = searchUsage ? new List<string>() : FileHelper.FindFilesWithCriteria(list, addStatement);
             List<Tuple<string, string>> callableServiceNames = ExtractServiceNames(callableServicesWithAddDatapart);
             List<string> result = new List<string>();
 
-            string progress = searchUsage ? "\n> Filtering users" : "\n> Filtering creators";
+
+            string progress = searchUsage ? "\n> Filtering users " : "\n> Filtering creators ";
             Console.Write(progress);
 
             if(searchUsage)
@@ -71,13 +74,17 @@ namespace Find
 
         private static void AnalyzeLine(string criteria, string datapartCall, List<string> specificMatch, List<Tuple<string, string>> callableServiceNames, List<string> result)
         {
+            int fileNr = 0; 
+
             foreach (var path in specificMatch)
             {
+                fileNr++;
                 Console.Write(".");
                 int lineNumber = 0;
                 int lineNumber_WantedDatapartName = 0;
                 int lineNumber_NotRelatedDatapartName = 0;
                 int lineNumber_AddDatapartCall = 0;
+                int lineNumber_IfOpen = 0;
 
                 string fileOriginal = File.ReadAllText(path);
                 string onlyCode = fileOriginal
@@ -96,8 +103,22 @@ namespace Find
                         lineNumber_WantedDatapartName = lineNumber;
                     }
 
+                    if(line.Contains("if("))
+                    {
+                        lineNumber_IfOpen = lineNumber;
+                    }
+                    
                     // vinden we nog een tweede declaratie, dan wordt de match kennelijk overschreven
-                    if (!line.Contains(criteria.ToLower()) && line.Contains("datapartname="))
+                    // behalve als dat binnen een if valt
+                    // dus als na IfOpen nog een datapartname declaratie volgt, dan zijn de declaraties relevant
+                    if (
+                        (!line.Contains(criteria.ToLower()) 
+                            && line.Contains("datapartname=")) && 
+                        // De boogde datapartname is gedeclareerd voor een eventuele If opening
+                        (lineNumber_WantedDatapartName > lineNumber_IfOpen && 
+                        // en de huidie datapartname declaratie is de If opening
+                          lineNumber_IfOpen < lineNumber)
+                        )
                     {
                         lineNumber_NotRelatedDatapartName = lineNumber;
                     }
@@ -140,6 +161,7 @@ namespace Find
 
         private static List<Tuple<string, string>> ExtractServiceNames(List<string> callableServices)
         {
+            Console.Write("\n> Extracting service names ");
             XmlDocument xmlDoc = new XmlDocument();
             string xpath_ServiceNamespace = "/om:MetaModel/om:Element[@Type=\"Module\"]/om:Property[@Name=\"Name\"]";
             string xpath_ServiceName = "/om:MetaModel/om:Element[@Type=\"Module\"]/om:Element[@Type=\"ServiceDeclaration\"]/om:Property[@Name=\"Name\"]";
@@ -160,10 +182,10 @@ namespace Find
                 string serviceName = xmlDoc.SelectSingleNode(xpath_ServiceName, manager).Attributes["Value"].Value;
                 string fullName = serviceNamespace + "." + serviceName;
 
-                fullServiceNames.Add(Tuple.Create(fullName, path));
+                fullServiceNames.Add(Tuple.Create(fullName.ToLower(), path));
             }
 
-            Console.Write("\n> Extracted serviceNames");
+            Console.Write("> Done");
             return fullServiceNames;
         }
 
@@ -172,7 +194,7 @@ namespace Find
             document = document.Remove(document.IndexOf("\r\n#endif // __DESIGNER_DATA"));
             document = document.Replace("#if __DESIGNER_DATA\r\n", "");
             document = document.Replace("#error Do not define __DESIGNER_DATA.\r\n", "");
-            File.WriteAllText(@"C:\Div\BizTalk\GALO_en_ESB\testje_GestriptFinal.txt", document);
+            //File.WriteAllText(@"C:\Div\BizTalk\GALO_en_ESB\testje_GestriptFinal.txt", document);
             return document;
         }
     }
