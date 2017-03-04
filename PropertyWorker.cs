@@ -4,20 +4,20 @@ using System.IO;
 
 namespace Find
 {
-    public static class PropertyWorker
+    public class PropertyWorker
     {
 
-        public static List<string> SearchPropertyCreation(List<string> list, string criteria)
+        public List<string> SearchPropertyCreation(List<string> list, string criteria)
         {
             return SearchPropertyActivity(list, criteria, false);
         }
 
-        public static List<string> SearchPropertyUsage(List<string> list, string criteria)
+        public List<string> SearchPropertyUsage(List<string> list, string criteria)
         {
             return SearchPropertyActivity(list, criteria, true);
         }
 
-        private static List<string> SearchPropertyActivity(List<string> list, string criteria, bool searchUsage)
+        private List<string> SearchPropertyActivity(List<string> list, string criteria, bool searchUsage)
         {
             string addStatement = Properties.Settings.Default.PropertyCreationCall.ToLower().Replace(" ", string.Empty);
             string useStatement = Properties.Settings.Default.PropertyUsageCall.ToLower().Replace(" ", string.Empty);
@@ -25,8 +25,8 @@ namespace Find
             // creation of usage zoeken
             string propertyCall = searchUsage ? useStatement : addStatement;
 
-            List<string> preMatches = FileHelper.FindFilesWithCriteria(list, criteria);
-            List<string> specificMatch = FileHelper.FindFilesWithCriteria(preMatches, propertyCall);
+            List<string> preMatches = new FileHelper().FindFilesWithCriteria(list, criteria);
+            List<string> specificMatch = new FileHelper().FindFilesWithCriteria(preMatches, propertyCall);
             List<string> result = new List<string>();
 
             string progress = searchUsage ? "\n> Filtering property users" : "\n> Filtering property creators";
@@ -38,7 +38,7 @@ namespace Find
             return result;
         }
 
-        private static void AnalyzeLineForProperty(string criteria, string propertyCall, List<string> specificMatch, List<string> result)
+        private void AnalyzeLineForProperty(string criteria, string propertyCall, List<string> specificMatch, List<string> result)
         {
             foreach (var path in specificMatch)
             {

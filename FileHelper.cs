@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Find
 {
-    public static class FileHelper
+    public class FileHelper: DebugTracer
     {
 
         public static List<string> CollectFiles(string path, string fileType)
@@ -26,7 +26,7 @@ namespace Find
             return retval;
         }
 
-        public static List<string> FindFilesWithCriteria(List<string> list, string criteria)
+        public List<string> FindFilesWithCriteria(List<string> list, string criteria)
         {
             List<string> matches = new List<string>();
             criteria = criteria.Replace(" ", string.Empty).ToLower();
@@ -52,7 +52,7 @@ namespace Find
             return matches;
         }
 
-        public static void ExportResults(string criteria, List<string> resultSetCreation, List<string> resultSetUsage)
+        public void ExportResults(string criteria, List<string> resultSetCreation, List<string> resultSetUsage)
         {
             string exportfilePath = Directory.GetCurrentDirectory() + "resultsExported.txt";
 

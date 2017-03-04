@@ -61,15 +61,6 @@ namespace Find.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Aanvraag_Pdf")]
-        public string DefaultCriteria_Test {
-            get {
-                return ((string)(this["DefaultCriteria_Test"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("call Wigo4it.BizTalk.Bus.Core.SetProperty")]
         public string PropertyCreationCall {
             get {
@@ -92,6 +83,15 @@ namespace Find.Properties {
         public string DatapartUsageCall_Check {
             get {
                 return ((string)(this["DatapartUsageCall_Check"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("EwwbCodeVertalingCodelijsten")]
+        public string DefaultCriteria_Test {
+            get {
+                return ((string)(this["DefaultCriteria_Test"]));
             }
         }
     }

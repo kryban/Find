@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,44 +8,47 @@ using System.Xml;
 
 namespace Find
 {
-    public static class DatapartWorker
+    public class DatapartWorker : DebugTracer
     {
-        public static List<string> SearchDatapartCreation(List<string> list, string criteria)
+        public List<string> SearchDatapartCreation(List<string> list, string criteria)
         {
             return SearchDatapartActivity(list, criteria, false);
         }
 
-        public static List<string> SearchDatapartUsage(List<string> list, string criteria)
+        public List<string> SearchDatapartUsage(List<string> list, string criteria)
         {
             return SearchDatapartActivity(list, criteria, true);
         }
 
-        public static List<string> SearchDatapartActivity(List<string> list, string criteria, bool searchUsage)
+        public List<string> SearchDatapartActivity(List<string> list, string criteria, bool searchUsage)
         {
             Console.Write("\n> Analyzing files ");
             string addStatement = Properties.Settings.Default.DatapartCreationCall.ToLower().Replace(" ", string.Empty);
             string useStatement_GET = Properties.Settings.Default.DatapartUsageCall_Get.ToLower().Replace(" ", string.Empty);
             string useStatement_CHECK = Properties.Settings.Default.DatapartUsageCall_Check.ToLower().Replace(" ", string.Empty);
 
-            List<string> preMatches = FileHelper.FindFilesWithCriteria(list, criteria);
+            // prematches is een subselectie van alle relevante bestanden (alle bestanden met de gewenste extensie)
+            // die binnen de relevante bestanden ook nog matchen met zoekCriteria
+            List<string> preMatches = new FileHelper().FindFilesWithCriteria(list, criteria);
 
             List<string> specificMatch = new List<string>();
 
-            //bij usage een subselectie op prematches. Bij creation selecteren op de volledige lijst.
+            // bij usage een subselectie op prematches. 
             if (searchUsage)
             {
-                List<string> specificMatchGet = FileHelper.FindFilesWithCriteria(preMatches, useStatement_GET);
-                List<string> specificMatchCheck = FileHelper.FindFilesWithCriteria(preMatches, useStatement_CHECK);
+                List<string> specificMatchGet = new FileHelper().FindFilesWithCriteria(preMatches, useStatement_GET);
+                List<string> specificMatchCheck = new FileHelper().FindFilesWithCriteria(preMatches, useStatement_CHECK);
                 specificMatch = specificMatchGet.Concat(specificMatchCheck).ToList();
             }
+            // bij creation selecteren we op volledige lijst die we van buiten meekrijgen
             else
             {
-                specificMatch = FileHelper.FindFilesWithCriteria(list, addStatement);
+                specificMatch = new FileHelper().FindFilesWithCriteria(list, addStatement);
                 specificMatch = preMatches.Concat(specificMatch).ToList();
             }
 
             Console.Write("> Done");
-            List<string> callableServicesWithAddDatapart = searchUsage ? new List<string>() : FileHelper.FindFilesWithCriteria(list, addStatement);
+            List<string> callableServicesWithAddDatapart = searchUsage ? new List<string>() : new FileHelper().FindFilesWithCriteria(list, addStatement);
             List<Tuple<string, string>> callableServiceNames = ExtractServiceNames(callableServicesWithAddDatapart);
             List<string> result = new List<string>();
 
@@ -72,7 +75,7 @@ namespace Find
             return result.Distinct().ToList();
         }
 
-        private static void AnalyzeLine(string criteria, string datapartCall, List<string> specificMatch, List<Tuple<string, string>> callableServiceNames, List<string> result)
+        private void AnalyzeLine(string criteria, string datapartCall, List<string> specificMatch, List<Tuple<string, string>> callableServiceNames, List<string> result)
         {
             int fileNr = 0; 
 
@@ -85,6 +88,9 @@ namespace Find
                 int lineNumber_NotRelatedDatapartName = 0;
                 int lineNumber_AddDatapartCall = 0;
                 int lineNumber_IfOpen = 0;
+                int lineNumber_CurlyOpenWithinIf = 0;
+                int lineNumber_CurlyClosedWithinIf = 0;
+                bool ifOpen = false;
 
                 string fileOriginal = File.ReadAllText(path);
                 string onlyCode = fileOriginal
@@ -95,7 +101,7 @@ namespace Find
                 //foreach (var line in File.ReadLines(path))
                 foreach (var line in onlyCode.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
                 {
-                    var foo = 0;
+                    var foo = line.Contains(criteria.ToLower()) && line.Contains("datapartname=");
 
                     // eerst line vinden waarin datapartName gedeclareerd wordt
                     if (line.Contains(criteria.ToLower()) && line.Contains("datapartname="))
@@ -106,19 +112,31 @@ namespace Find
                     if(line.Contains("if("))
                     {
                         lineNumber_IfOpen = lineNumber;
+                        ifOpen = true;
                     }
-                    
-                    // vinden we nog een tweede declaratie, dan wordt de match kennelijk overschreven
+
+                    // we moeten vaststellen of we binnen of buiten de if zitten
+                    // dat doen we aan de hand van tellen van aantal '{' en '}' na een ifOpen
+                    //if (ifOpen && line.Contains("{"))
+                    //    lineNumber_CurlyOpenWithinIf++;
+
+                    // we moeten vaststellen of we binnen of buiten de if zitten
+                    // dat doen we aan de hand van tellen van aantal '{' en '}' na een ifOpen
+                    //if (ifOpen && line.Contains("}"))
+                    //   lineNumber_CurlyClosedWithinIf++;
+
+                    // als die evenveel zijn, dan is de if gesloten.
+                    //if (ifOpen && lineNumber_CurlyOpenWithinIf > 0 && (lineNumber_CurlyOpenWithinIf == lineNumber_CurlyClosedWithinIf))
+                    //    ifOpen = false;
+
+                    // vinden we nog een tweede datapartname declaratie, dan wordt de match kennelijk overschreven
                     // behalve als dat binnen een if valt
-                    // dus als na IfOpen nog een datapartname declaratie volgt, dan zijn de declaraties relevant
+                    // dus als buiten een If nog een datapartname declaratie volgt, dan zijn de declaraties relevant
                     if (
-                        (!line.Contains(criteria.ToLower()) 
-                            && line.Contains("datapartname=")) && 
-                        // De boogde datapartname is gedeclareerd voor een eventuele If opening
-                        (lineNumber_WantedDatapartName > lineNumber_IfOpen && 
-                        // en de huidie datapartname declaratie is de If opening
-                          lineNumber_IfOpen < lineNumber)
-                        )
+                        (!line.Contains(criteria.ToLower()) && line.Contains("datapartname=")) // && 
+                        // De boogde datapartname is gedeclareerd binnen een If
+                        //(!ifOpen)
+                       )
                     {
                         lineNumber_NotRelatedDatapartName = lineNumber;
                     }
@@ -135,12 +153,12 @@ namespace Find
                     else
                     {
                         // dan kan datapart nog in een called service aangemaakt worden
-                        // dus als volgend op aanmaak datapartname een service wordt gecalled, dan is het aannemelijk dat 
-                        // daarin ook datapart aangemaakt wordt.
+                        // dus als volgend op aanmaak datapartname een service wordt gecalled en daarin ook de variabele datapartname, 
+                        // dan is het aannemelijk dat daarin ook datapart aangemaakt wordt.
                         // die proberen we te vinden indien niet in het huidig document een addDatapart gecalled wordt
                         foreach (var element in callableServiceNames)
                         {
-                            if (line.Contains(element.Item1))
+                            if (line.Contains(element.Item1) && line.Contains("datapartname"))
                             {
                                 lineNumber_AddDatapartCall = lineNumber;
                             }
@@ -159,7 +177,7 @@ namespace Find
             }
         }
 
-        private static List<Tuple<string, string>> ExtractServiceNames(List<string> callableServices)
+        private List<Tuple<string, string>> ExtractServiceNames(List<string> callableServices)
         {
             Console.Write("\n> Extracting service names ");
             XmlDocument xmlDoc = new XmlDocument();
@@ -189,7 +207,7 @@ namespace Find
             return fullServiceNames;
         }
 
-        private static string BeautifyStringForXml(string document)
+        private string BeautifyStringForXml(string document)
         {
             document = document.Remove(document.IndexOf("\r\n#endif // __DESIGNER_DATA"));
             document = document.Replace("#if __DESIGNER_DATA\r\n", "");

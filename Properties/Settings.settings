@@ -14,9 +14,6 @@
     <Setting Name="DefaultExtension" Type="System.String" Scope="Application">
       <Value Profile="(Default)">odx</Value>
     </Setting>
-    <Setting Name="DefaultCriteria_Test" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Aanvraag_Pdf</Value>
-    </Setting>
     <Setting Name="PropertyCreationCall" Type="System.String" Scope="Application">
       <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.SetProperty</Value>
     </Setting>
@@ -25,6 +22,9 @@
     </Setting>
     <Setting Name="DatapartUsageCall_Check" Type="System.String" Scope="Application">
       <Value Profile="(Default)">call Wigo4it.BizTalk.Bus.Core.CheckDataPart</Value>
+    </Setting>
+    <Setting Name="DefaultCriteria_Test" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">EwwbCodeVertalingCodelijsten</Value>
     </Setting>
   </Settings>
 </SettingsFile>
